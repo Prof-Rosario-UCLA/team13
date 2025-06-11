@@ -3,8 +3,6 @@ name: Build and Deploy AI Life Coach
 on:
   push:
     branches: [ main ]
-  pull_request:
-    branches: [ main ]
 
 jobs:
   build-and-test:
@@ -19,44 +17,32 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: |
-          client/package-lock.json
-          server/package-lock.json
     
     - name: Install client dependencies
       run: |
-        cd client
-        npm ci
+        cd ai-life-coach-app/client
+        npm install
     
     - name: Install server dependencies
       run: |
-        cd server
-        npm ci
+        cd ai-life-coach-app/server
+        npm install
     
     - name: Build client
       run: |
-        cd client
+        cd ai-life-coach-app/client
         NODE_ENV=production npm run build
     
     - name: Copy client build to server
       run: |
-        cp -r client/build/* server/public/
+        mkdir -p ai-life-coach-app/server/public
+        cp -r ai-life-coach-app/client/build/* ai-life-coach-app/server/public/
     
     - name: Test server (syntax check)
       run: |
-        cd server
+        cd ai-life-coach-app/server
         node -c index.js
         echo "✅ Server syntax check passed"
-    
-    - name: Upload build artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-files
-        path: |
-          server/public/
-          server/package.json
-          server/index.js
 
   deploy:
     needs: build-and-test
@@ -72,19 +58,16 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20'
-        cache: 'npm'
-        cache-dependency-path: |
-          client/package-lock.json
-          server/package-lock.json
     
     - name: Install dependencies and build
       run: |
-        cd client
-        npm ci
+        cd ai-life-coach-app/client
+        npm install
         NODE_ENV=production npm run build
+        mkdir -p ../server/public
         cp -r build/* ../server/public/
         cd ../server
-        npm ci
+        npm install
     
     - name: Authenticate to Google Cloud
       uses: google-github-actions/auth@v2
@@ -98,7 +81,7 @@ jobs:
     
     - name: Create app.yaml for deployment
       run: |
-        cd server
+        cd ai-life-coach-app/server
         cat > app.yaml << EOF
         runtime: nodejs20
         
@@ -118,7 +101,7 @@ jobs:
     
     - name: Deploy to Google App Engine
       run: |
-        cd server
+        cd ai-life-coach-app/server
         gcloud app deploy --quiet --promote
         echo "✅ Deployment successful!"
         echo "🌐 App URL: https://ai-life-coach-demo.uc.r.appspot.com"
