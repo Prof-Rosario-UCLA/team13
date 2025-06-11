@@ -1,1 +1,14 @@
 server/app.yaml
+server/.env
+*.json
+app.yaml
+
+# Environment variables and secrets
+server/.env
+server/app.yaml
+github-actions-key.json
+*.pem
+*.key
+
+# Deployment files
+server/deploy.sh
