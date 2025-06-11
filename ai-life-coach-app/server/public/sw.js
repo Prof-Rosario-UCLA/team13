@@ -1,7 +1,7 @@
 const CACHE_NAME = 'ai-life-coach-v1.0.0';
 const STATIC_CACHE_NAME = 'ai-life-coach-static-v1.0.0';
 
-//static assets to cache
+// Static assets to cache
 const STATIC_ASSETS = [
   '/',
   '/static/js/bundle.js',
@@ -9,7 +9,7 @@ const STATIC_ASSETS = [
   '/manifest.json'
 ];
 
-//cache static assets
+// Install event - cache static assets
 self.addEventListener('install', (event) => {
   console.log('[SW] Install event');
   
@@ -28,21 +28,21 @@ self.addEventListener('install', (event) => {
   );
 });
 
-//activate event
+// Activate event
 self.addEventListener('activate', (event) => {
   console.log('[SW] Activate event');
   event.waitUntil(self.clients.claim());
 });
 
-//fetch event - handle offline requests
+// Fetch event - handle offline requests
 self.addEventListener('fetch', (event) => {
   if (event.request.method !== 'GET') return;
   
   if (event.request.url.includes('/api/')) {
-    //API requests
+    // API requests - try network first, then return offline response
     event.respondWith(handleApiRequest(event.request));
   } else {
-    //try cache first, then network
+    // Static assets - try cache first, then network
     event.respondWith(handleStaticRequest(event.request));
   }
 });
