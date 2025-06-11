@@ -12,3 +12,4 @@ github-actions-key.json
 
 # Deployment files
 server/deploy.sh
+github-actions-key.json

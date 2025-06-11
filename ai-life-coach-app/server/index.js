@@ -4,7 +4,9 @@ const cors = require('cors');
 const helmet = require('helmet');
 const cookieParser = require('cookie-parser');
 const path = require('path');
-require('dotenv').config();
+require('dotenv').config({ path: '.env.local' });
+// Then load .env as fallback
+require('dotenv').config()
 
 const app = express();
 const PORT = process.env.PORT || 8080;
