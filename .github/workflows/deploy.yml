@@ -18,35 +18,78 @@ jobs:
       with:
         node-version: '20'
     
-    - name: Debug - Check directory structure
-      run: |
-        echo "=== Current directory ==="
-        pwd
-        echo "=== Contents of root ==="
-        ls -la
-        echo "=== Contents of ai-life-coach-app ==="
-        ls -la ai-life-coach-app/
-        echo "=== Contents of ai-life-coach-app/client ==="
-        ls -la ai-life-coach-app/client/
-        echo "=== Check package.json ==="
-        cat ai-life-coach-app/client/package.json | grep -A5 '"scripts"'
-    
     - name: Install client dependencies
       run: |
-        cd ai-life-coach-app/client
+        cd client
         npm install
-    
-    - name: Build client
-      run: |
-        cd ai-life-coach-app/client
-        echo "=== Current directory ==="
-        pwd
-        echo "=== Available scripts ==="
-        npm run
-        echo "=== Running build ==="
-        npm run build
     
     - name: Install server dependencies
       run: |
         cd ai-life-coach-app/server
         npm install
+    
+    - name: Build client
+      run: |
+        cd client
+        npm run build
+    
+    - name: Copy client build to server
+      run: |
+        mkdir -p ai-life-coach-app/server/public
+        cp -r client/build/* ai-life-coach-app/server/public/
+
+  deploy:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+    name: Deploy to Google App Engine
+    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20'
+    
+    - name: Install and build
+      run: |
+        cd client
+        npm install
+        npm run build
+        mkdir -p ai-life-coach-app/server/public
+        cp -r build/* ai-life-coach-app/server/public/
+        cd ai-life-coach-app/server
+        npm install
+    
+    - name: Authenticate to Google Cloud
+      uses: google-github-actions/auth@v2
+      with:
+        credentials_json: ${{ secrets.GCP_SA_KEY }}
+    
+    - name: Setup Google Cloud SDK
+      uses: google-github-actions/setup-gcloud@v2
+      with:
+        project_id: ${{ secrets.GCP_PROJECT_ID }}
+    
+    - name: Deploy to Google App Engine
+      run: |
+        cd ai-life-coach-app/server
+        cat > app.yaml << EOF
+        runtime: nodejs20
+        env_variables:
+          NODE_ENV: production
+          MONGODB_URI: "${{ secrets.MONGODB_URI }}"
+          OPENAI_API_KEY: "${{ secrets.OPENAI_API_KEY }}"
+          JWT_SECRET: "${{ secrets.JWT_SECRET }}"
+          CLIENT_URL: "https://ai-life-coach-demo.uc.r.appspot.com"
+          OPENAI_MODEL: "gpt-3.5-turbo"
+        automatic_scaling:
+          max_instances: 10
+          min_instances: 0
+          target_cpu_utilization: 0.6
+        EOF
+        gcloud app deploy --quiet --promote
+        echo "✅ Deployment successful!"
+        echo "🌐 App URL: https://ai-life-coach-demo.uc.r.appspot.com"
