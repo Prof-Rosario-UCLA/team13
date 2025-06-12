@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 
 // Configure axios to use your backend URL
-axios.defaults.baseURL = 'http://localhost:3001';
+axios.defaults.baseURL = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8080';
 axios.defaults.withCredentials = true;
 
 function App() {
