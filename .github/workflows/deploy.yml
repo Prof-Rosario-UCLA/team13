@@ -13,19 +13,19 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Debug: List root directory contents
+    - name: Debug - List root directory contents
       run: |
         echo "Listing contents of the repository root:"
         ls -F
         echo "---"
 
-    - name: Debug: List client directory contents before install
+    - name: Debug - List client directory contents before install
       run: |
         echo "Listing contents of the 'client' directory before npm install:"
         ls -F client/
         echo "---"
 
-    - name: Debug: Show client/package.json content
+    - name: Debug - Show client/package.json content
       run: |
         echo "Content of client/package.json:"
         cat client/package.json
@@ -70,7 +70,7 @@ jobs:
       with:
         node-version: '20'
     
-    - name: Install and build
+    - name: Install and build client, prepare server
       run: |
         cd client
         npm install
