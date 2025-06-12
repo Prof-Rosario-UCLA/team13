@@ -13,3 +13,5 @@ github-actions-key.json
 # Deployment files
 server/deploy.sh
 github-actions-key.json
+client/node_modules/
+client/node_modules/
