@@ -592,7 +592,6 @@ const ChatInterface = ({ user, setUser }) => {
       <form 
         onSubmit={handleSendMessage} 
         className="flex gap-2"
-        role="form"
         aria-labelledby="message-form-title"
       >
         <h3 id="message-form-title" className="sr-only">Send a message</h3>
