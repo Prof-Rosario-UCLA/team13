@@ -1,8 +1,0 @@
-{
-  "dependencies": {
-    "@tailwindcss/forms": "^0.5.10",
-    "axios": "^1.9.0",
-    "react-router-dom": "^7.6.2",
-    "tailwindcss": "^4.1.8"
-  }
-}
