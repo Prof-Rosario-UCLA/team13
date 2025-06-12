@@ -20,22 +20,22 @@ jobs:
     
     - name: Install client dependencies
       run: |
-        cd ai-life-coach-app/client
+        cd client
         npm install
     
     - name: Install server dependencies
       run: |
-        cd ai-life-coach-app/server
+        cd server
         npm install
     
     - name: Build client
       run: |
-        cd ai-life-coach-app/client
+        cd client
         npm run build
     
     - name: Copy client build to server
       run: |
-        cp -r ai-life-coach-app/client/build/* ai-life-coach-app/server/public/
+        cp -r client/build/* server/public/
 
   deploy:
     needs: build-and-test
@@ -54,7 +54,7 @@ jobs:
     
     - name: Install and build
       run: |
-        cd ai-life-coach-app/client
+        cd client
         npm install
         npm run build
         cp -r build/* ../server/public/
@@ -73,7 +73,7 @@ jobs:
     
     - name: Deploy to Google App Engine
       run: |
-        cd ai-life-coach-app/server
+        cd server
         cat > app.yaml << EOF
         runtime: nodejs20
         env_variables:
@@ -88,4 +88,4 @@ jobs:
           min_instances: 0
           target_cpu_utilization: 0.6
         EOF
-        gcloud app deploy --quiet --promote
+          gcloud app deploy --quiet --promote
